@@ -567,8 +567,7 @@ function paste(img){
 		// Note: relying on select_tool to call deselect();
 		select_tool(get_tool_by_name("Select"));
 
-		selection = new OnCanvasSelection(0, 0, img.width, img.height);
-		selection.instantiate(img);
+		selection = new OnCanvasSelection(0, 0, img.width, img.height, img);
 	}
 }
 
@@ -797,7 +796,6 @@ function select_all(){
 	select_tool(get_tool_by_name("Select"));
 
 	selection = new OnCanvasSelection(0, 0, canvas.width, canvas.height);
-	selection.instantiate();
 }
 
 const browserRecommendationForClipboardAccess = "Try using Chrome 76+";

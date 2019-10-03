@@ -105,7 +105,6 @@ html, body, .jspaint {
 	height: 100%;
 }
 .resize-ghost,
-.selection:not(.instantiated),
 .component-ghost {
 	pointer-events: none;
 }
