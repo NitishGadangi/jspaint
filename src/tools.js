@@ -51,6 +51,8 @@ tools = [{
 		$G.one("pointerup", function(){
 			$G.off("pointermove", onpointermove);
 		});
+
+		$canvas_handles.hide();
 	},
 	continuous: "space",
 	paint: function(ctx, x, y){
@@ -112,6 +114,7 @@ tools = [{
 		selection.cut_out_background();
 	},
 	cancel: function(){
+		$canvas_handles.show();
 		if(!this.preview_canvas){return;}
 		this.preview_canvas.width = 1;
 		this.preview_canvas.height = 1;
@@ -150,6 +153,7 @@ tools = [{
 		// 		selection = null;
 		// 	}
 		// });
+		$canvas_handles.hide();
 	},
 	paint: function(){
 		this.x1 = Math.max(0, Math.min(this.drag_start_x, pointer.x));
@@ -180,6 +184,7 @@ tools = [{
 		delete this.x2;
 		delete this.y1;
 		delete this.y2;
+		$canvas_handles.show();
 	},
 	drawPreviewAboveGrid: function(ctx, x, y, scaled_by_amount, grid_visible) {
 		// draw selection border
