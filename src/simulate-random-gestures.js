@@ -23,14 +23,14 @@ $cursor.css({
 	transition: "opacity 0.5s",
 });
 
-window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, secondary, secondaryToggleChance, target}) => {
-	let rect;
-	if (target) {
-		rect = target.getBoundingClientRect();
-	} else {
-		target = canvas;
-		rect = document.body.getBoundingClientRect();
-	}
+window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, secondary, secondaryToggleChance, target=canvas}) => {
+	let startWithinRect = target.getBoundingClientRect();
+	let canvasAreaRect = $canvas_area[0].getBoundingClientRect();
+
+	// console.log(startWithinRect, startWithinRect.left);
+	// startWithinRect.left = 50;
+	// console.log(startWithinRect, startWithinRect.left);
+
 
 	$cursor.appendTo($app);
 	let triggerMouseEvent = (type, point) => {
@@ -39,8 +39,8 @@ window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, second
 			return;
 		}
 
-		var clientX = rect.left + point.x;
-		var clientY = rect.top + point.y;
+		var clientX = startWithinRect.left + point.x;
+		var clientY = startWithinRect.top + point.y;
 		var el_over = document.elementFromPoint(clientX, clientY);
 		var do_nothing = !type.match(/move/) && (!el_over || !el_over.closest(".canvas-area"));
 		$cursor.css({
@@ -72,18 +72,18 @@ window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, second
 	};
 
 	let t = 0;
-	let cx = Math.random() * rect.width;
-	let cy = Math.random() * rect.height;
+	let cx = Math.random() * canvasAreaRect.width;
+	let cy = Math.random() * canvasAreaRect.height;
 	let gestureComponents = [];
 	let numberOfComponents = 5;
 	for (let i = 0; i < numberOfComponents; i += 1) {
 		gestureComponents.push({
 			rx:
-				(Math.random() * Math.min(rect.width, rect.height)) /
+				(Math.random() * Math.min(canvasAreaRect.width, canvasAreaRect.height)) /
 				2 /
 				numberOfComponents,
 			ry:
-				(Math.random() * Math.min(rect.width, rect.height)) /
+				(Math.random() * Math.min(canvasAreaRect.width, canvasAreaRect.height)) /
 				2 /
 				numberOfComponents,
 			angularFactor: Math.random() * 5 - Math.random(),
