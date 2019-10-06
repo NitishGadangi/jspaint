@@ -1,10 +1,13 @@
-window.stopSimulatingGestures && window.stopSimulatingGestures();
-
 (()=>{
+
+window.stopSimulatingGestures && window.stopSimulatingGestures();
+window.simulatingGestures = false;
+
 let gestureTimeoutID;
 let periodicGesturesTimeoutID;
 
 let choose = (array)=> array[~~(Math.random() * array.length)];
+let isAnyMenuOpen = ()=> $(".menu-button.active").length > 0;
 
 window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, secondary, secondaryToggleChance}) => {
 	let target = document.querySelector(".main-canvas");
@@ -14,6 +17,10 @@ window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, second
 
 	let triggerMouseEvent = (type, point) => {
 		
+		if (isAnyMenuOpen()) {
+			return;
+		}
+
 		// target = document.elementFromPoint(point.x, point.y);
 		var el_over = document.elementFromPoint(point.x, point.y);
 		if (!type.match(/move/) && (!el_over || !el_over.closest(".canvas-area"))) {
@@ -92,6 +99,8 @@ window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, second
 };
 
 window.simulateRandomGesturesPeriodically = () => {
+	window.simulatingGestures = true;
+
 	let delayBetweenGestures = 500;
 	let shiftStart = false;
 	let shiftStartToggleChance = 0.1;
@@ -114,6 +123,11 @@ window.simulateRandomGesturesPeriodically = () => {
 		});
 	};
 	let waitThenGo = () => {
+		if (isAnyMenuOpen()) {
+			setTimeout(waitThenGo, 50);
+			return;
+		}
+
 		if (Math.random() < shiftStartToggleChance) {
 			shiftStart = !shiftStart;
 		}
@@ -154,8 +168,7 @@ window.simulateRandomGesturesPeriodically = () => {
 window.stopSimulatingGestures = () => {
 	clearTimeout(gestureTimeoutID);
 	clearTimeout(periodicGesturesTimeoutID);
+	window.simulatingGestures = false;
 };
 
-
 })();
-window.simulateRandomGesturesPeriodically();

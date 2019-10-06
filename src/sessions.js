@@ -277,12 +277,12 @@
 			// Sync the data from this client to the server (one-way)
 			var uri = canvas.toDataURL();
 			if(previous_uri !== uri){
-				log(`clear ${pointer_operations.length} events of user gesture and set data`);
+				log(`clear ${pointer_operations.length} events representing current user gesture and set canvas data`);
 				pointer_operations = [];
 				session.fb_data.set(uri);
 				previous_uri = uri;
 			}else{
-				log("don't set data; it hasn't changed");
+				log("don't set canvas data; it hasn't changed");
 			}
 		};
 
@@ -290,7 +290,7 @@
 
 		// Any time we change or recieve the image data
 		_fb_on(session.fb_data, "value", function(snap){
-			log("data update");
+			log("canvas data update");
 
 			var uri = snap.val();
 			if(uri == null){
@@ -319,7 +319,7 @@
 
 					// Playback recorded in-progress pointer operations
 					if (pointer_operations.length) {
-						log(`playback ${pointer_operations.length} events from the current user gesture`);
+						log(`playback ${pointer_operations.length} events from the current user gesture (to rebase ontop of the new canvas data)`);
 						for(var i=0; i<pointer_operations.length; i++){
 							var e = pointer_operations[i];
 							// Trigger the event at each place it is listened for
