@@ -27,10 +27,12 @@ window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, second
 	let startWithinRect = target.getBoundingClientRect();
 	let canvasAreaRect = $canvas_area[0].getBoundingClientRect();
 
-	// console.log(startWithinRect, startWithinRect.left);
-	// startWithinRect.left = 50;
-	// console.log(startWithinRect, startWithinRect.left);
-
+	let startMinX = Math.max(startWithinRect.left, canvasAreaRect.left);
+	let startMaxX = Math.min(startWithinRect.right, canvasAreaRect.right);
+	let startMinY = Math.max(startWithinRect.top, canvasAreaRect.top);
+	let startMaxY = Math.min(startWithinRect.bottom, canvasAreaRect.bottom);
+	let startPointX = startMinX + Math.random() * (startMaxX - startMinX);
+	let startPointY = startMinY + Math.random() * (startMaxY - startMinY);
 
 	$cursor.appendTo($app);
 	let triggerMouseEvent = (type, point) => {
@@ -39,8 +41,8 @@ window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, second
 			return;
 		}
 
-		var clientX = startWithinRect.left + point.x;
-		var clientY = startWithinRect.top + point.y;
+		var clientX = point.x;
+		var clientY = point.y;
 		var el_over = document.elementFromPoint(clientX, clientY);
 		var do_nothing = !type.match(/move/) && (!el_over || !el_over.closest(".canvas-area"));
 		$cursor.css({
@@ -72,8 +74,6 @@ window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, second
 	};
 
 	let t = 0;
-	let cx = Math.random() * canvasAreaRect.width;
-	let cy = Math.random() * canvasAreaRect.height;
 	let gestureComponents = [];
 	let numberOfComponents = 5;
 	for (let i = 0; i < numberOfComponents; i += 1) {
@@ -90,29 +90,30 @@ window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, second
 			angularOffset: Math.random() * 5 - Math.random(),
 		});
 	}
+	const stepsInGesture = 50;
 	let pointForTime = (t) => {
-		let point = { x: cx, y: cy };
+		let point = { x: startPointX, y: startPointY };
 		for (let i = 0; i < gestureComponents.length; i += 1) {
 			let { rx, ry, angularFactor, angularOffset } = gestureComponents[i];
 			point.x +=
-				Math.sin(Math.PI * 2 * ((t / 100) * angularFactor + angularOffset)) *
-				rx;
+				Math.sin(Math.PI * 2 * ((t / 2) * angularFactor + angularOffset)) *
+				rx * t;
 			point.y +=
-				Math.cos(Math.PI * 2 * ((t / 100) * angularFactor + angularOffset)) *
-				ry;
+				Math.cos(Math.PI * 2 * ((t / 2) * angularFactor + angularOffset)) *
+				ry * t;
 		}
 		return point;
 	};
 	triggerMouseEvent("pointerdown", pointForTime(t));
 	let move = () => {
-		t += 1;
+		t += 1 / stepsInGesture;
 		if (Math.random() < shiftToggleChance) {
 			shift = !shift;
 		}
 		if (Math.random() < secondaryToggleChance) {
 			secondary = !secondary;
 		}
-		if (t > 50) {
+		if (t > 1) {
 			triggerMouseEvent("pointerup", pointForTime(t));
 			
 			$cursor.remove();
