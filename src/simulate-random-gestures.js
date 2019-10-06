@@ -9,6 +9,20 @@ let periodicGesturesTimeoutID;
 let choose = (array)=> array[~~(Math.random() * array.length)];
 let isAnyMenuOpen = ()=> $(".menu-button.active").length > 0;
 
+let cursor_image = new Image();
+cursor_image.src = "images/cursors/default.png";
+
+var $cursor = $(cursor_image).addClass("user-cursor");
+$cursor.css({
+	position: "absolute",
+	left: 0,
+	top: 0,
+	opacity: 0,
+	zIndex: 500, // arbitrary; maybe too high
+	pointerEvents: "none",
+	transition: "opacity 0.5s",
+});
+
 window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, secondary, secondaryToggleChance, target}) => {
 	let rect;
 	if (target) {
@@ -18,15 +32,25 @@ window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, second
 		rect = document.body.getBoundingClientRect();
 	}
 
+	$cursor.appendTo($app);
 	let triggerMouseEvent = (type, point) => {
 		
 		if (isAnyMenuOpen()) {
 			return;
 		}
 
-		// target = document.elementFromPoint(point.x, point.y);
-		var el_over = document.elementFromPoint(point.x, point.y);
-		if (!type.match(/move/) && (!el_over || !el_over.closest(".canvas-area"))) {
+		var clientX = rect.left + point.x;
+		var clientY = rect.top + point.y;
+		var el_over = document.elementFromPoint(clientX, clientY);
+		var do_nothing = !type.match(/move/) && (!el_over || !el_over.closest(".canvas-area"));
+		$cursor.css({
+			display: "block",
+			position: "absolute",
+			left: clientX,
+			top: clientY,
+			opacity: do_nothing ? 0.5 : 1,
+		});
+		if (do_nothing) {
 			return;
 		}
 
@@ -34,10 +58,10 @@ window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, second
 			view: window,
 			bubbles: true,
 			cancelable: true,
-			clientX: rect.left + point.x,
-			clientY: rect.top + point.y,
-			screenX: rect.left + point.x,
-			screenY: rect.top + point.y,
+			clientX: clientX,
+			clientY: clientY,
+			screenX: clientX,
+			screenY: clientY,
 			offsetX: point.x,
 			offsetY: point.y,
 			button: secondary ? 2 : 0,
@@ -90,6 +114,9 @@ window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, second
 		}
 		if (t > 50) {
 			triggerMouseEvent("pointerup", pointForTime(t));
+			
+			$cursor.remove();
+
 			if (callback) {
 				callback();
 			}
