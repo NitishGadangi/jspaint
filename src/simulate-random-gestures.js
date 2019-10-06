@@ -9,11 +9,14 @@ let periodicGesturesTimeoutID;
 let choose = (array)=> array[~~(Math.random() * array.length)];
 let isAnyMenuOpen = ()=> $(".menu-button.active").length > 0;
 
-window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, secondary, secondaryToggleChance}) => {
-	let target = document.querySelector(".main-canvas");
-
-	// let rect = target.getBoundingClientRect();
-	let rect = document.body.getBoundingClientRect();
+window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, secondary, secondaryToggleChance, target}) => {
+	let rect;
+	if (target) {
+		rect = target.getBoundingClientRect();
+	} else {
+		target = canvas;
+		rect = document.body.getBoundingClientRect();
+	}
 
 	let triggerMouseEvent = (type, point) => {
 		
@@ -113,9 +116,10 @@ window.simulateRandomGesturesPeriodically = () => {
 	let pickColorChance = 0.5;
 	let pickToolOptionsChance = 0.8;
 	let scrollChance = 0.2;
+	let dragSelectionChance = 0.8;
 	
 	let _simulateRandomGesture = (callback)=> {
-		window.simulateRandomGesture(waitThenGo, {
+		window.simulateRandomGesture(callback, {
 			shift: shiftStart,
 			shiftToggleChance,
 			secondary: secondaryStart,
@@ -161,7 +165,19 @@ window.simulateRandomGesturesPeriodically = () => {
 			}
 		}
 		periodicGesturesTimeoutID = setTimeout(() => {
-			_simulateRandomGesture(waitThenGo);
+			_simulateRandomGesture(()=> {
+				if (selection && Math.random() < dragSelectionChance) {
+					window.simulateRandomGesture(waitThenGo, {
+						shift: shiftStart,
+						shiftToggleChance,
+						secondary: secondaryStart,
+						secondaryToggleChance,
+						target: selection.canvas
+					});
+				} else {
+					waitThenGo();
+				}
+			});
 		}, delayBetweenGestures);
 	};
 	_simulateRandomGesture(waitThenGo);
