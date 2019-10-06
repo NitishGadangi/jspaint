@@ -14,7 +14,11 @@ window.simulateRandomGesture = (callback, {shift, shiftToggleChance=0.01, second
 
 	let triggerMouseEvent = (type, point) => {
 		
-		target = document.elementFromPoint(point.x, point.y);
+		// target = document.elementFromPoint(point.x, point.y);
+		var el_over = document.elementFromPoint(point.x, point.y);
+		if (!type.match(/move/) && (!el_over || !el_over.closest(".canvas-area"))) {
+			return;
+		}
 
 		let event = new $.Event(type, {
 			view: window,
