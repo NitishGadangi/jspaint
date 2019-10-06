@@ -123,6 +123,8 @@ window.simulateRandomGesturesPeriodically = () => {
 		});
 	};
 	let waitThenGo = () => {
+		// TODO: a button to stop it as well (maybe make "stop drawing randomly" a link button?)
+		$status_text.text("Press Esc to stop drawing randomly.");
 		if (isAnyMenuOpen()) {
 			setTimeout(waitThenGo, 50);
 			return;
@@ -166,9 +168,12 @@ window.simulateRandomGesturesPeriodically = () => {
 };
 
 window.stopSimulatingGestures = () => {
-	clearTimeout(gestureTimeoutID);
-	clearTimeout(periodicGesturesTimeoutID);
-	window.simulatingGestures = false;
+	if (window.simulatingGestures) {
+		clearTimeout(gestureTimeoutID);
+		clearTimeout(periodicGesturesTimeoutID);
+		window.simulatingGestures = false;
+		$status_text.default();
+	}
 };
 
 })();
